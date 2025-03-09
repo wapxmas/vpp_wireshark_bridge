@@ -25,26 +25,26 @@
 
 ## Архитектура
 
-```
-+-----------------------------------+                 +----------------+
-|          Машина с VPP             |                 |                |
-|                                   |                 |   Машина с     |
-|  +----------+     +----------+    |                 |   Wireshark    |
-|  |          |     |          |    |    REST API     |  +----------+  |
-|  |   VPP    |     |VPP Agent |<--------------------->|  | Extcap   |  |
-|  |  Плагин  |<===>|          |    |                 |  |  Мост    |  |
-|  |          |     |          |----+------UDP--------->|  |          |  |
-|  +----------+     +----------+    |    Трафик      |  +----------+  |
-|        |               |          |                 |       |        |
-|    Unix Socket      vppctl       |                 |       |        |
-|        |               |          |                 |       v        |
-|        +---------------+          |                 |  +----------+  |
-|                                   |                 |  |          |  |
-+-----------------------------------+                 |  | Wireshark|  |
-                                                      |  |          |  |
-                                                      |  +----------+  |
-                                                      |                |
-                                                      +----------------+
+```mermaid
+flowchart LR
+    subgraph VPP_Machine["Машина с VPP"]
+        VPP_Plugin["VPP\nПлагин"]
+        VPP_Agent["VPP Agent"]
+        
+        VPP_Plugin <--> VPP_Agent
+        VPP_Plugin -- "Unix Socket" --> unix_socket((Unix Socket))
+        VPP_Agent -- "vppctl" --> unix_socket
+    end
+    
+    subgraph Wireshark_Machine["Машина с Wireshark"]
+        Extcap_Bridge["Extcap\nМост"]
+        Wireshark["Wireshark"]
+        
+        Extcap_Bridge --> Wireshark
+    end
+    
+    VPP_Agent <---> |"REST API"| Extcap_Bridge
+    VPP_Agent --> |"UDP Трафик"| Extcap_Bridge
 ```
 
 ## Типы соединений

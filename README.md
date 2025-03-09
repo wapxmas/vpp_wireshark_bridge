@@ -28,16 +28,15 @@
 ```mermaid
 flowchart LR
     subgraph VPP_Machine["Машина с VPP"]
-        VPP_Plugin["VPP\nПлагин"]
+        VPP_Plugin["VPP Плагин"]
         VPP_Agent["VPP Agent"]
         
-        VPP_Plugin <--> VPP_Agent
-        VPP_Plugin -- "Unix Socket" --> unix_socket((Unix Socket))
-        VPP_Agent -- "vppctl" --> unix_socket
+        VPP_Plugin <-- "Unix Socket" --> VPP_Agent
+        VPP_Agent <-- "vppctl" --> VPP_Plugin
     end
     
     subgraph Wireshark_Machine["Машина с Wireshark"]
-        Extcap_Bridge["Extcap\nМост"]
+        Extcap_Bridge["Extcap Мост"]
         Wireshark["Wireshark"]
         
         Extcap_Bridge --> Wireshark

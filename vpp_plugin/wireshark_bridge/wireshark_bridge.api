@@ -1,0 +1,98 @@
+/* 
+ * wireshark_bridge.api - API для плагина VPP, передающего трафик в Wireshark
+ */
+
+option version = "1.0.0";
+import "vnet/interface_types.api";
+
+/** \brief Включить передачу трафика в Wireshark
+    @param client_index - индекс клиента
+    @param context - контекст запроса
+    @param sw_if_index - индекс интерфейса (если -1, то все интерфейсы)
+    @param bridge_address - адрес моста (IP:порт или путь к Unix сокету)
+*/
+autoreply define wireshark_bridge_enable {
+  u32 client_index;
+  u32 context;
+  vl_api_interface_index_t sw_if_index;
+  string bridge_address[64];
+};
+
+/** \brief Отключить передачу трафика в Wireshark
+    @param client_index - индекс клиента
+    @param context - контекст запроса
+    @param sw_if_index - индекс интерфейса (если -1, то все интерфейсы)
+*/
+autoreply define wireshark_bridge_disable {
+  u32 client_index;
+  u32 context;
+  vl_api_interface_index_t sw_if_index;
+};
+
+/** \brief Получить список интерфейсов, доступных для передачи трафика
+    @param client_index - индекс клиента
+    @param context - контекст запроса
+*/
+define wireshark_bridge_get_interfaces {
+  u32 client_index;
+  u32 context;
+};
+
+/** \brief Информация об интерфейсе
+    @param sw_if_index - индекс интерфейса
+    @param name - имя интерфейса
+*/
+typedef interface_info {
+  vl_api_interface_index_t sw_if_index;
+  string name[64];
+};
+
+/** \brief Ответ со списком интерфейсов
+    @param context - контекст запроса
+    @param count - количество интерфейсов
+    @param interfaces - массив информации об интерфейсах
+*/
+define wireshark_bridge_get_interfaces_reply {
+  u32 context;
+  u32 retval;
+  u32 count;
+  vl_api_interface_info_t interfaces[count];
+};
+
+/** \brief Статистика одного интерфейса
+    @param sw_if_index - индекс интерфейса
+    @param packets_sent_rx - количество отправленных входящих пакетов
+    @param bytes_sent_rx - количество отправленных входящих байт
+    @param packets_sent_tx - количество отправленных исходящих пакетов
+    @param bytes_sent_tx - количество отправленных исходящих байт
+*/
+typedef interface_stats {
+  vl_api_interface_index_t sw_if_index;
+  u64 packets_sent_rx;
+  u64 bytes_sent_rx;
+  u64 packets_sent_tx;
+  u64 bytes_sent_tx;
+};
+
+/** \brief Получить статистику передачи трафика
+    @param client_index - индекс клиента
+    @param context - контекст запроса
+    @param sw_if_index - индекс интерфейса (если -1, то все интерфейсы)
+*/
+define wireshark_bridge_get_stats {
+  u32 client_index;
+  u32 context;
+  vl_api_interface_index_t sw_if_index;
+};
+
+/** \brief Ответ со статистикой передачи трафика
+    @param context - контекст запроса
+    @param count - количество интерфейсов
+    @param stats - массив статистики по интерфейсам
+*/
+define wireshark_bridge_get_stats_reply {
+  u32 context;
+  u32 retval;
+  u32 count;
+  vl_api_interface_stats_t stats[count];
+}; 

@@ -1,8 +1,8 @@
 # VPP to Wireshark Bridge
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
-[![GitHub release](https://img.shields.io/github/release/username/vpp_wireshark_bridge.svg)](https://github.com/username/vpp_wireshark_bridge/releases/)
-[![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)](https://github.com/username/vpp_wireshark_bridge/graphs/commit-activity)
+[![GitHub release](https://img.shields.io/github/release/wapxmas/vpp_wireshark_bridge.svg)](https://github.com/wapxmas/vpp_wireshark_bridge/releases/)
+[![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)](https://github.com/wapxmas/vpp_wireshark_bridge/graphs/commit-activity)
 
 > *Мост между VPP (Vector Packet Processing, fd.io) и Wireshark, позволяющий просматривать трафик с интерфейсов VPP в Wireshark через интерфейс extcap, даже если VPP и Wireshark находятся на разных машинах.*
 
@@ -92,7 +92,7 @@ flowchart LR
 
 ```bash
 # 1. Клонировать репозиторий
-git clone https://github.com/username/vpp_wireshark_bridge.git
+git clone https://github.com/wapxmas/vpp_wireshark_bridge.git
 cd vpp_wireshark_bridge
 
 # 2. Установить зависимости
@@ -368,9 +368,9 @@ netsh advfirewall firewall add rule name="Allow UDP Port 9000" dir=in action=all
 
 ## 👥 Авторы
 
-* **Имя Фамилия** - *Начальная работа* - [GitHub профиль](https://github.com/username)
+* **Сергей Яшин** - *Начальная работа* - [GitHub профиль](https://github.com/wapxmas)
 
-Смотрите также список [участников](https://github.com/username/vpp_wireshark_bridge/contributors), которые внесли свой вклад в этот проект.
+Смотрите также список [участников](https://github.com/wapxmas/vpp_wireshark_bridge/contributors), которые внесли свой вклад в этот проект.
 
 ## 📄 Лицензия
 
@@ -379,5 +379,5 @@ netsh advfirewall firewall add rule name="Allow UDP Port 9000" dir=in action=all
 ---
 
 <div align="center">
-🌟 <a href="https://github.com/username/vpp_wireshark_bridge">Поставьте звезду на GitHub</a> и следите за обновлениями! 🌟
+🌟 <a href="https://github.com/wapxmas/vpp_wireshark_bridge">Поставьте звезду на GitHub</a> и следите за обновлениями! 🌟
 </div> 

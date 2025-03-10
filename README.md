@@ -1,6 +1,6 @@
 # VPP to Wireshark Bridge
 
-[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE-2.0.txt)
 [![GitHub release](https://img.shields.io/github/release/wapxmas/vpp_wireshark_bridge.svg)](https://github.com/wapxmas/vpp_wireshark_bridge/releases/)
 [![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)](https://github.com/wapxmas/vpp_wireshark_bridge/graphs/commit-activity)
 
@@ -374,7 +374,7 @@ netsh advfirewall firewall add rule name="Allow UDP Port 9000" dir=in action=all
 
 ## 📄 Лицензия
 
-Этот проект лицензирован под Apache License 2.0 - см. файл [LICENSE](LICENSE) для подробностей.
+Этот проект лицензирован под Apache License 2.0 - см. файл [LICENSE](LICENSE-2.0.txt) для подробностей.
 
 ---
 

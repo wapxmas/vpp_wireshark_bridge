@@ -166,8 +166,13 @@ pip install -r /путь/к/extcap_bridge/requirements.txt
 deactivate
 
 # Копирование wrapper-скрипта в директорию extcap
+# Для x86_64 архитектуры:
 sudo cp extcap_bridge/vpp_bridge_wrapper.sh /usr/lib/wireshark/extcap/
 sudo chmod +x /usr/lib/wireshark/extcap/vpp_bridge_wrapper.sh
+
+# Для ARM64 архитектуры:
+sudo cp extcap_bridge/vpp_bridge_wrapper.sh /usr/lib/aarch64-linux-gnu/wireshark/extcap/
+sudo chmod +x /usr/lib/aarch64-linux-gnu/wireshark/extcap/vpp_bridge_wrapper.sh
 ```
 </details>
 

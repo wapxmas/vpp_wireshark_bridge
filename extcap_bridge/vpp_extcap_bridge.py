@@ -19,6 +19,7 @@ import threading
 import queue
 import platform
 import signal
+import traceback
 from typing import Dict, List, Optional, Union, Tuple, Any
 import tempfile
 import json
@@ -484,11 +485,12 @@ class VppAgent:
 class PacketProcessor:
     """Processes packets from VPP and queues them for Wireshark."""
     
-    def __init__(self, debug: bool = False):
+    def __init__(self, debug: bool = False, exit_on_error: bool = False):
         """Initialize the packet processor.
         
         Args:
             debug: Enable debug mode
+            exit_on_error: Exit the entire process on critical errors
         """
         self.debug = debug
         self.running = False
@@ -496,6 +498,7 @@ class PacketProcessor:
         self.interfaces_lock = threading.Lock()  # Add lock for thread-safe access to interfaces
         self.packets_queue = queue.Queue()
         self.server_thread = None
+        self.exit_on_error = exit_on_error
     
     def start_packet_server(self, port: Optional[int] = None) -> int:
         """Start the server for receiving packets from VPP.
@@ -561,10 +564,17 @@ class PacketProcessor:
                 except Exception as e:
                     if self.running:  # Only log if not shutting down
                         logger.error(f"Error receiving data: {e}")
-                        # Check for broken pipe error on macOS
-                        if IS_MACOS and isinstance(e, OSError) and e.errno == 32:  # Broken pipe error
-                            logger.error("Broken pipe error detected on macOS, stopping capture")
+                        # Check for broken pipe error on any platform
+                        if isinstance(e, OSError) and e.errno == errno.EPIPE:  # Broken pipe error
+                            logger.error("Broken pipe error detected, stopping capture")
+                            # Log the full stack trace
+                            stack_trace = ''.join(traceback.format_exc())
+                            logger.error(f"Stack trace:\n{stack_trace}")
                             self.running = False
+                            # Force exit if configured to exit on critical errors
+                            if self.exit_on_error:
+                                logger.info("Critical error detected, exiting process")
+                                os._exit(1)  # Immediately terminate process with error code
                             break
                     time.sleep(0.1)
         
@@ -806,6 +816,9 @@ class PacketProcessor:
                         
             except BrokenPipeError:
                 logger.error("FIFO pipe broken, ending capture")
+                # Log the full stack trace
+                stack_trace = ''.join(traceback.format_exc())
+                logger.error(f"Stack trace:\n{stack_trace}")
             except Exception as e:
                 logger.error(f"Error opening or writing to FIFO: {e}")
     
@@ -890,10 +903,16 @@ class PacketProcessor:
                             
                     except BrokenPipeError:
                         logger.error("macOS FIFO pipe broken, ending capture")
+                        # Log the full stack trace
+                        stack_trace = ''.join(traceback.format_exc())
+                        logger.error(f"Stack trace:\n{stack_trace}")
                         break
                     except IOError as e:
                         if e.errno == errno.EPIPE:  # Broken pipe
                             logger.error("macOS FIFO pipe broken (EPIPE), ending capture")
+                            # Log the full stack trace
+                            stack_trace = ''.join(traceback.format_exc())
+                            logger.error(f"Stack trace:\n{stack_trace}")
                             break
                         else:
                             logger.error(f"macOS FIFO error: {e}")
@@ -909,6 +928,9 @@ class PacketProcessor:
                             
                     except BrokenPipeError:
                         logger.error("FIFO pipe broken, ending capture")
+                        # Log the full stack trace
+                        stack_trace = ''.join(traceback.format_exc())
+                        logger.error(f"Stack trace:\n{stack_trace}")
                         break
                     except Exception as e:
                         logger.error(f"Error in packet capture: {e}")
@@ -1175,7 +1197,7 @@ class VppExtcapBridge:
             return 1
         
         # Initialize components
-        self.packet_processor = PacketProcessor(self.debug)
+        self.packet_processor = PacketProcessor(self.debug, exit_on_error=True)
         self.vpp_agent = VppAgent(
             self.args.vpp_host, 
             self.args.vpp_port, 

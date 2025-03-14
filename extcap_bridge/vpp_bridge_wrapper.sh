@@ -36,11 +36,23 @@ PYTHON_PID=""
 
 # Cleanup function to ensure proper termination
 cleanup() {
-    echo "Received termination signal. Cleaning up..."
+    echo "Performing cleanup..."
     
     # Kill Python process if it exists
     if [ -n "${PYTHON_PID}" ] && kill -0 ${PYTHON_PID} 2>/dev/null; then
         echo "Terminating Python process (PID: ${PYTHON_PID})"
+        
+        # First try to terminate all child processes
+        CHILD_PIDS=$(pgrep -P ${PYTHON_PID} 2>/dev/null)
+        if [ -n "${CHILD_PIDS}" ]; then
+            echo "Terminating Python child processes: ${CHILD_PIDS}"
+            for CHILD_PID in ${CHILD_PIDS}; do
+                kill -TERM ${CHILD_PID} 2>/dev/null || true
+            done
+            sleep 0.5
+        fi
+        
+        # Then terminate the parent process
         kill -TERM ${PYTHON_PID} 2>/dev/null
         
         # Increase wait time to 2 seconds
@@ -51,9 +63,15 @@ cleanup() {
             fi
         done
         
-        # Force kill if still running
+        # Force kill if still running, including children
         if kill -0 ${PYTHON_PID} 2>/dev/null; then
-            echo "Force killing Python process"
+            echo "Force killing Python process and any remaining children"
+            CHILD_PIDS=$(pgrep -P ${PYTHON_PID} 2>/dev/null)
+            if [ -n "${CHILD_PIDS}" ]; then
+                for CHILD_PID in ${CHILD_PIDS}; do
+                    kill -9 ${CHILD_PID} 2>/dev/null || true
+                done
+            fi
             kill -9 ${PYTHON_PID} 2>/dev/null
         fi
     fi
@@ -129,20 +147,14 @@ else
     exit 1
 fi
 
-# Prepare command line arguments
-CMD_ARGS="--vpp-host \"${VPP_HOST}\" --vpp-port ${VPP_PORT}"
-
-# Add Wireshark IP and port parameters if defined
-if [ -n "${WIRESHARK_IP}" ]; then
-    CMD_ARGS="${CMD_ARGS} --wireshark-ip \"${WIRESHARK_IP}\""
-fi
-
-if [ -n "${WIRESHARK_PORT}" ]; then
-    CMD_ARGS="${CMD_ARGS} --wireshark-port ${WIRESHARK_PORT}"
-fi
-
-# Run Python script in background and capture its PID
-eval "${PYTHON_CMD} vpp_extcap_bridge.py ${CMD_ARGS} $@" &
+# Run Python script directly (avoiding eval and complex constructs)
+# This gives us a more accurate PID
+"${PYTHON_CMD}" "${MAIN_SCRIPT}" \
+  --vpp-host "${VPP_HOST}" \
+  --vpp-port "${VPP_PORT}" \
+  ${WIRESHARK_IP:+--wireshark-ip "${WIRESHARK_IP}"} \
+  ${WIRESHARK_PORT:+--wireshark-port "${WIRESHARK_PORT}"} \
+  "$@" &
 PYTHON_PID=$!
 
 # Wait for the Python process to complete
